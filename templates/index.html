@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spotify to YouTube Music Playlist Convertor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Optional dark mode toggle -->
+    <button class="toggle" onclick="toggleTheme()">🌙</button>
+
+    <main>
+        <h1>Spotify to Youtube<br>Music Playlist Convertor</h1>
+        <p>It do exactly what it says.</p>
+        <form action="/login" method="get">
+            <button type="submit" class="btn">Login with Spotify</button>
+        </form>
+    </main>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+        }
+    </script>
+</body>
+</html>

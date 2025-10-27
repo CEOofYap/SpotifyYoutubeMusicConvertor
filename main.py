@@ -4,7 +4,7 @@ import urllib.parse
 import base64
 
 from datetime import datetime, timedelta
-from flask import Flask, redirect, request, jsonify, session
+from flask import Flask, redirect, request, jsonify, session, render_template
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,7 +22,7 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 
 @app.route('/')
 def index():
-    return "Welcome to my Spotify App <a href='/login'>Login with Spotify</a>"
+    return render_template('index.html')
 
 @app.route('/login')
 def login():
@@ -43,7 +43,7 @@ def login():
 @app.route('/callback')
 def callback():
     if 'error' in request.args:
-        return jsonify({"error": request.args['error']})
+        return redirect('/')#jsonify({"error": request.args['error']})
     
     if 'code' in request.args:
         req_body = {

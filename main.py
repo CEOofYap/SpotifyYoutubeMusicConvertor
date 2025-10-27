@@ -1,6 +1,7 @@
 import requests
 import os
 import urllib.parse
+import base64
 
 from datetime import datetime, timedelta
 from flask import Flask, redirect, request, jsonify, session
@@ -25,7 +26,7 @@ def index():
 
 @app.route('/login')
 def login():
-    scope = "user-read-private user-read-email"
+    scope = "user-read-private"
 
     params = {
         'client_id': CLIENT_ID,
@@ -53,16 +54,16 @@ def callback():
             'client_secret': CLIENT_SECRET
         } 
 
-        response = request.post(TOKEN_URL, data=req_body)
+        response = requests.post(TOKEN_URL, data=req_body)
         token_info = response.json()
 
         session['access_token'] = token_info['access_token']
         session['refresh_token'] = token_info['refresh_token']
         session['expires_at'] = datetime.now().timestamp() + token_info['expires_in']
 
-        return redirect('/playlist')
+        return redirect('/playlists')
     
-@app.route('/playlist')
+@app.route('/playlists')
 def get_playlists():
     if 'access_token' not in session:
         return redirect('/login')
@@ -85,14 +86,27 @@ def refresh_token():
         return redirect('/login')
     
     if datetime.now().timestamp() > session['expires_at']:
+        print("REFRESHING TOKEN")
+        strng = f"{CLIENT_ID}:{CLIENT_SECRET}"
+        strng_bytes = strng.encode("ascii")
+        encoded_bytes = base64.b64encode(strng_bytes)
+        b64_strng = encoded_bytes.decode("ascii")
+        headers={
+            'Content-Type': "application/x-www-form-urlencoded",
+            'Authorization': 'Basic ' + b64_strng,
+        }
         req_body = {
             'grant_type': 'refresh_token',
             'refresh_token': session['refresh_token'],
             'client_id': CLIENT_ID
         }
 
-        response = request.post(TOKEN_URL, data=req_body)
+        response = requests.post(TOKEN_URL, data=req_body, headers=headers)
+        response.raise_for_status()
+
         new_token_info = response.json()
+        if 'access_token' not in new_token_info:
+            return jsonify({"error": "Invalid response from Spotify", "details": new_token_info}), 400
 
         session['access_token'] = new_token_info['access_token']
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expire_in']

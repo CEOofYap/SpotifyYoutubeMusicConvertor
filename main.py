@@ -26,14 +26,14 @@ def index():
 
 @app.route('/login')
 def login():
-    scope = "user-read-private"
+    scope = "user-read-private user-read-email playlist-read-private"
 
     params = {
         'client_id': CLIENT_ID,
         'response_type': 'code',
         'scope': scope,
         'redirect_uri': REDIRECT_URI,
-        'show_dialog': True, #Change to false or delete it later
+        'show_dialog': False, #Change to false or delete it later
     }
 
     auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
@@ -113,5 +113,30 @@ def refresh_token():
 
         return redirect('/playlists')
     
+@app.route('/test')
+def get_user_playlist():
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token')
+
+    headers = {
+        'Authorization': f"Bearer {session['access_token']}"
+    }
+    response = requests.get(API_BASE_URL + 'me', headers=headers)
+    user_info = response.json()
+
+    if 'id' not in user_info:
+        return "NO ID"
+
+    id = user_info['id']
+    url = f'users/{id}/playlists'
+    response = requests.get(API_BASE_URL + url, headers=headers)
+    print(API_BASE_URL + url)
+    playlists = response.json()
+    
+    return jsonify(playlists)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

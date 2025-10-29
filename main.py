@@ -22,6 +22,8 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 
 @app.route('/')
 def index():
+    if session:
+        return redirect('/playlists')
     return render_template('index.html')
 
 @app.route('/login')
@@ -33,7 +35,7 @@ def login():
         'response_type': 'code',
         'scope': scope,
         'redirect_uri': REDIRECT_URI,
-        'show_dialog': False, #Change to false or delete it later
+        'show_dialog': True, #Change to false or delete it later
     }
 
     auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
@@ -137,6 +139,12 @@ def get_user_playlist():
     playlists = response.json()
     
     return jsonify(playlists)
+
+@app.route('/logout')
+def logout():
+    print(session)
+    session.clear()
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

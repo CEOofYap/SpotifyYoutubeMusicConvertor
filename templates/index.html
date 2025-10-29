@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +8,7 @@
 </head>
 <body>
     <!-- Optional dark mode toggle -->
-    <button class="toggle" onclick="toggleTheme()">🌙</button>
+    <button class="toggle">🌙</button>
 
     <main>
         <h1>Spotify to Youtube<br>Music Playlist Convertor</h1>
@@ -18,10 +18,9 @@
         </form>
     </main>
 
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script>
-        function toggleTheme() {
-            document.body.classList.toggle('dark');
-        }
+
     </script>
 </body>
 </html>
